@@ -130,4 +130,5 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-from challenge.app_settings import * 
+if env('DJANGO_ENV', default='') != 'testing':
+    from challenge.app_settings import * 
