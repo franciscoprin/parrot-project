@@ -26,21 +26,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./challenge-devops
-          platforms: linux/amd64
-          tags: ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
-          load: true
-          push: false # Explicitly set to false for clarity
-
       - name: Run tests in container
         run: |
           cd ./challenge-devops
-          docker run --rm \
-            --env DJANGO_ENV=testing \
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} bash -c "python manage.py test"
+          docker-compose run --rm django bash -c "time DJANGO_ENV=testing python manage.py test"
