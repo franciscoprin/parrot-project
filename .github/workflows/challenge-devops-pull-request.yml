@@ -5,7 +5,7 @@ on:
     branches-ignore:
       - 'main'
     paths:
-      # - 'challenge-devops/**'
+    # - 'challenge-devops/**'
       - '**'
   pull_request:
     branches-ignore:
@@ -16,7 +16,6 @@ on:
 
 jobs:
   test:
-    if: github.ref != 'refs/heads/main' # Exclude `main` branch
     runs-on: ubuntu-latest
 
     env:
@@ -33,14 +32,16 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./challenge-devops
+          context: .
           platforms: linux/amd64
           tags: ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
           load: true
           push: false # Explicitly set to false for clarity
+        working-directory: ./challenge-devops
 
       - name: Run tests in container
         run: |
           docker run --rm \
             --env DJANGO_ENV=testing \
             ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} bash -c "python manage.py test"
+        working-directory: ./challenge-devops
