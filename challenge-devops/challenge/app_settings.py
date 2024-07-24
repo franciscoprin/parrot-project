@@ -7,7 +7,6 @@ APP_VERSION = env('APP_VERSION', default='N/A')
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# Default database settings
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
