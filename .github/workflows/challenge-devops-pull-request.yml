@@ -1,12 +1,6 @@
 name: Pull Request Pipeline
 
 on:
-  push:
-    branches-ignore:
-      - 'main'
-    paths:
-      # - 'challenge-devops/**'
-      - '**'
   pull_request:
     branches-ignore:
       - 'main'
