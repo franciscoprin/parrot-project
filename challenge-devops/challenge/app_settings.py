@@ -9,6 +9,11 @@ APP_VERSION = env('APP_VERSION', default='N/A')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'test',
+        'USER': 'test',
+        'PASSWORD': 'test',
+        'HOST': 'test',
+        'PORT': 'test',
     }
 }
 
