@@ -47,4 +47,4 @@ class OrderViewSetTest(TestCase):
         self.assertIn('updated_at', response.data)
         self.assertEqual('Cosme', response.data['customer_name'])
         self.assertEqual('Soda', response.data['item_name'])
-        self.assertEqual('10.0', response.data['price'])
+        self.assertEqual('10.00', response.data['price'])
