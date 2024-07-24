@@ -33,8 +33,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./challenge-devops/Dockerfile
+          context: ./challenge-devops
           platforms: linux/amd64
           tags: ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
           load: true
