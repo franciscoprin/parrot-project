@@ -1,0 +1,16 @@
+vars:
+  stage: experiments
+  environment: ue1
+  region: us-east-1
+  aws_profile_name: experiments-admin
+
+import:
+  - catalog/ecr
+
+components:
+  terraform:
+    ecr:
+      vars:
+        repository_names:
+          - challenge-devops
+        

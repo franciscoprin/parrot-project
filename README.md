@@ -37,6 +37,8 @@ graph TD
 
 ### Todos:
 * **SetUp development environment:**
+    * Branch: feature/setup-development-environment
+    * PR: 
     * Consider using the Cloudposse Geodesic container for easier development. [X]
         * [Cloudposse Geodesic container](https://github.com/cloudposse/geodesic)
     * Install inside of the geodesic container some necesary software. [ ]
@@ -45,8 +47,8 @@ graph TD
             * Already installed by default
         * Atmos to be able to create applications by just creating yaml blocks. [ ]
             * [Atmos Installation Guide](https://atmos.tools/install/)
-            * WHY THE FUCK, IT DOESN'T GET INSTALLED.
     * Set up Cloudposse Atmos inside the `infrastructure` folder. [ ]
+      * [Atmos tutorial]
 
 * **Setting OIDC for GitHub**:
   * Configure the 
@@ -80,7 +82,7 @@ graph TD
   * ECR Atmos component [ ]
     * To host the images for the application.
     * Branch: feature/setup-ecr
-    * PR: 
+    * PR: https://github.com/franciscoprin/parrot-project/pull/5
   * Datadog Atmos Component: [ ]
     * Install Datadog Agent inside all the node groups. [ ]
   * AWS Load Balancer Controller Component: [ ]

@@ -1,0 +1,66 @@
+# If you want to customize Geodesic (and we fully support that),
+# use this file as the basis for your own Makefile.
+# Modify the variable settings to create your own version of Geodesic
+# with your own Docker image name and app name.
+#
+# See Dockerfile.custom and Dockerfile.options for
+# how to customize your Dockerfile.
+# Note that Geodesic supports runtime customizations that
+# do not require a custom Dockerfile: See
+#   https://github.com/cloudposse/geodesic/blob/main/docs/customization.md
+#
+#
+# The `make` variables build up to $(DOCKER_IMAGE):$(DOCKER_TAG) being
+# what you would use for `docker run` and `docker push`.
+# You probably want to use either `latest` or `dev` for DOCKER_TAG
+# unless you have a build system that can keep track of version numbers.
+#
+# `make install` will install a script to launch your customized Geodesic
+# with lots of nice things set up for you. APP_NAME is what to call
+# the script. We recommend NOT calling it "geodesic" so you do not
+# get it confused with the standard Geodesic image published by Cloud Posse.
+#
+# After your first `make install`, you can run your customized Geodesic
+# by just the app name you set, and you can update it by just running
+# `make build`.
+
+
+export APP_NAME = parrot
+export DOCKER_ORG ?= franciscoprin
+export DOCKER_IMAGE ?= $(DOCKER_ORG)/parrot-infra
+export DOCKER_TAG ?= latest
+export DOCKER_IMAGE_NAME ?= $(DOCKER_IMAGE):$(DOCKER_TAG)
+GEODESIC_INSTALL_PATH ?= /usr/local/bin
+export INSTALL_PATH ?= $(GEODESIC_INSTALL_PATH)
+export SCRIPT = $(INSTALL_PATH)/$(APP_NAME)
+
+-include $(shell curl -sSL -o .build-harness "https://cloudposse.tools/build-harness"; echo .build-harness)
+
+## Initialize build-harness, install deps, build docker container, install wrapper script and run shell
+all: init deps build install run
+	@exit 0
+
+## Install dependencies (if any)
+deps:
+	@exit 0
+
+## Build docker image
+build:
+	@make --no-print-directory docker/build
+
+## Push docker image to registry
+push:
+	docker push $(DOCKER_IMAGE)
+
+## Install wrapper script from parrot container
+install:
+	@docker run --rm $(DOCKER_IMAGE_NAME) init | bash -s $(DOCKER_TAG)
+
+## Start the parrot shell by calling wrapper script
+# TODO: remove the `GEODESIC_DOCKER_EXTRA_ARGS` variable below
+run:
+	GEODESIC_DOCKER_EXTRA_ARGS="--volume /mnt/c/Users/franc/.aws:/mnt/c/Users/franc/.aws" $(SCRIPT)
+
+## Rebuild README for all Terraform components
+rebuild-docs: packages/install/terraform-docs
+	@pre-commit run --all-files terraform_docs

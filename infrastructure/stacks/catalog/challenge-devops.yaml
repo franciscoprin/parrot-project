@@ -1,0 +1,7 @@
+components:
+  terraform:
+    challenge-devops:
+      metadata:
+        component: parrot-app
+      vars:
+        name: challenge-devops
