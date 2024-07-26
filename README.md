@@ -35,6 +35,9 @@ graph TD
 * **CI/CD:**
   * GitHub Actions [ ]
 
+<details>
+<summary>Todos</summary>
+
 ### Todos:
 * **SetUp development environment:** [X]
     * Branch: feature/setup-development-environment
@@ -80,7 +83,7 @@ graph TD
     * Branch: feature/setup-github-oidc-provider
     * PR: https://github.com/franciscoprin/parrot-project/pull/4
   * ECR Atmos component [ ]
-    * TODO: for some reason old images are not beind deleted (REF: var.max_image_count)
+    * **TODO:** for some reason old images are not beind deleted (REF: var.max_image_count)
     * To host the images for the application.
     * Branch: feature/setup-ecr
     * PR: https://github.com/franciscoprin/parrot-project/pull/5
@@ -90,7 +93,7 @@ graph TD
     * Enable applications to create ALBs [ ]
 
 * **Create Pipeline for the Application:** [ ]
-  * Pull-Request Pipeline [ ]
+  * Pull-Request Pipeline [X]
     * (Description: Responsible for running unit tests on each PR commit.)
     * Create pull-request pipeline using docker-compose file [X]
         * Interesting post of using docker-compose to run the tests: 
@@ -124,21 +127,24 @@ graph TD
     * [Reference video](https://www.youtube.com/watch?v=9jZTsfby5io)
 
 * **Possible Improvements to the GitHub repository:** [ ]
-  * Create default template for PRs [ ]
+  * Create default template for PRs [X]
     * Branch: feature/create-default-pull-request-template
-    * PR: ???
+    * PR: https://github.com/franciscoprin/parrot-project/pull/7
+  * Set branch protection rules, if the challenge-devops-pull-request fails don't allow developers to merge.
 
 
 * **Possible Improvements for Scalability:** [ ]
-  * **RDS:** [ ]
+  * RDS: [ ]
     * Read Replicas [ ]
-  * **ElastiCache (Redis):** [ ]
+  * ElastiCache (Redis): [ ]
     * For caching responses [ ]
-  * **EKS nodes:** [ ]
+  * EKS nodes: [ ]
     * Karpenter [ ]
 
 * **Possible Improvements for Availability:** [ ]
-  * **RDS:** [ ]
+  * RDS: [ ]
     * Multi-AZ deployments for high availability [ ]
-  * **ReplicaSet (Affinity and Anti-Affinity):** [ ]
+  * ReplicaSet (Affinity and Anti-Affinity): [ ]
     * Distribute containers across different nodes in the EKS cluster [ ]
+
+</details>
