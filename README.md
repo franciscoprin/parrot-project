@@ -36,7 +36,7 @@ graph TD
   * GitHub Actions [ ]
 
 ### Todos:
-* **SetUp development environment:**
+* **SetUp development environment:** [X]
     * Branch: feature/setup-development-environment
     * PR: https://github.com/franciscoprin/parrot-project/pull/6/files
     * Consider using the Cloudposse Geodesic container for easier development. [X]
@@ -45,9 +45,9 @@ graph TD
         * OpenTofu to avoid dealing with the proprietary HashiCorp license change. [X]
             * [OpenTofu Installation Guide](https://opentofu.org/docs/intro/install/alpine/)
             * Already installed by default
-        * Atmos to be able to create applications by just creating yaml blocks. [ ]
+        * Atmos to be able to create applications by just creating yaml blocks. [X]
             * [Atmos Installation Guide](https://atmos.tools/install/)
-    * Set up Cloudposse Atmos inside the `infrastructure` folder. [ ]
+    * Set up Cloudposse Atmos inside the `infrastructure` folder. [X]
       * [Atmos tutorial]
 
 * **Setting OIDC for GitHub**:
@@ -80,6 +80,7 @@ graph TD
     * Branch: feature/setup-github-oidc-provider
     * PR: https://github.com/franciscoprin/parrot-project/pull/4
   * ECR Atmos component [ ]
+    * TODO: for some reason old images are not beind deleted (REF: var.max_image_count)
     * To host the images for the application.
     * Branch: feature/setup-ecr
     * PR: https://github.com/franciscoprin/parrot-project/pull/5
@@ -97,9 +98,9 @@ graph TD
             * Branch: feature/create-pipeline-challenge-devops-pull-request
             * PR: https://github.com/franciscoprin/parrot-project/pull/1
         * Consider not using docker-compose because test could slowdown due to docker-compose file.
-  * Build Pipeline [ ]
+  * Build Pipeline [X]
     * Branch: feature/create-pipeline-challenge-devops-build
-    * PR: feat(cicd) Creating Pipeline challenge-devops-build
+    * PR: https://github.com/franciscoprin/parrot-project/pull/3
     * Description: Triggered on each new commit to main or when a PR is merged. It builds the container and pushes the image to ECR. [ ]
   * Deploy Pipeline: [ ]
     * Branch: feature/create-pipeline-challenge-devops-deploy
