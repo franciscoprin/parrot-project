@@ -5,9 +5,9 @@ name: Build Pipeline
 on:
   push:
     branches:
-      # - main
-      # For testing purposes push in any branch
-      - feature/create-pipeline-challenge-devops-build
+      - main
+      # # For testing purposes push in any branch
+      # - "**"
 
 permissions:
   id-token: write # This is required for requesting the JWT
