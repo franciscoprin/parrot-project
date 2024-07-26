@@ -1,20 +1,24 @@
 ### Description
 
 ```mermaid
-graph TD;
-    subgraph GitHub
-        A[GitHub Actions Workflows]
-    end
+graph TD
+  subgraph GitHub Actions
+    GA[GitHub Actions Workflow]
+  end
 
-    subgraph AWS["AWS"]
-        B[Amazon ECR]
-        C[OIDC Provider]
+  subgraph AWS
+    subgraph Region - us-east-1
+      ECR[ECR Repository]
     end
+    OIDC[OIDC Provider]
+    IAM[IAM Role]
+  end
 
-    A --> |"Push Docker Images"| B
-    A --> |"Authenticate using OIDC"| C
-    C --> |"Exchange Tokens"| A
-  ```
+  GA -->|assumes role via| OIDC
+  OIDC -->|grants access| IAM
+  IAM -->|has permissions| ECR
+  GA -->|pushes images to| ECR
+```
 
 ### Tech Stack:
 * **Docker** [ ]
@@ -69,10 +73,10 @@ graph TD;
     * Create RDS database: [ ]
       * Set those secrets in SSM [ ]
     * Create an IAM role that allows the pod to CRUD the RDS database [ ]
-  * GitHub OIDC Provicer [ ]
+  * GitHub OIDC Provicer [X]
     * To grant GitHub Actions permission to push images to ECR
     * Branch: feature/setup-github-oidc-provider
-    * PR: 
+    * PR: https://github.com/franciscoprin/parrot-project/pull/4
   * ECR Atmos component [ ]
     * To host the images for the application.
     * Branch: feature/setup-ecr
