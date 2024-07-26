@@ -5,7 +5,9 @@ name: Build Pipeline
 on:
   push:
     branches:
-      - main
+      # - main
+      # For testing purposes push in any branch
+      - feature/create-pipeline-challenge-devops-build
 
 jobs:
   build:
@@ -17,11 +19,6 @@ jobs:
       AWS_ASSUME_ROLE_NAME: github-actions-ecr-push-role
       AWS_REGION: aws-region-1
       IMAGE_TAG: ${{ github.sha }}
-
-   # https://github.com/aws-actions/amazon-ecr-login
-   # whole example using docker actions to push to ECR: https://stackoverflow.com/questions/75811044/github-action-docker-build-push-actionv4-to-ecr-returns-untagged-images
-   # https://github.com/docker/metadata-action
-   # https://dev.to/aws-builders/aws-sso-github-setup-35ld
 
     steps:
       - name: Checkout code
