@@ -38,7 +38,7 @@ graph TD
 ### Todos:
 * **SetUp development environment:**
     * Branch: feature/setup-development-environment
-    * PR: 
+    * PR: https://github.com/franciscoprin/parrot-project/pull/6/files
     * Consider using the Cloudposse Geodesic container for easier development. [X]
         * [Cloudposse Geodesic container](https://github.com/cloudposse/geodesic)
     * Install inside of the geodesic container some necesary software. [ ]
