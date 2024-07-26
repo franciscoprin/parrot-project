@@ -1,0 +1,13 @@
+vars:
+  stage: experiments
+  environment: gbl
+  region: us-east-1
+  aws_profile_name: experiments-admin
+
+import:
+  - catalog/github-oidc-provider
+
+components:
+  terraform:
+    github-oidc-provider:
+      vars: {}

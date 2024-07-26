@@ -1,0 +1,26 @@
+name: Pull Request Pipeline
+
+on:
+  pull_request:
+    branches-ignore:
+      - 'main'
+    paths:
+      - 'challenge-devops/**'
+  workflow_dispatch:  # Allows manual triggering, useful for debugging purposes
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_IMAGE_NAME: challenge-devops
+      DOCKER_IMAGE_TAG: ${{ github.sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run tests in container
+        run: |
+          cd ./challenge-devops
+          docker-compose run --rm django bash -c "time DJANGO_ENV=testing python manage.py test"
