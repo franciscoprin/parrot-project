@@ -1,0 +1,104 @@
+# .github/workflows/build.yml
+
+name: Build Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_NAME: challenge-devops
+      AWS_ACCOUNT_ID: 123456789012
+      AWS_ASSUME_ROLE_NAME: github-actions-ecr-push-role
+      AWS_REGION: aws-region-1
+      IMAGE_TAG: ${{ github.sha }}
+
+   # https://github.com/aws-actions/amazon-ecr-login
+   # whole example using docker actions to push to ECR: https://stackoverflow.com/questions/75811044/github-action-docker-build-push-actionv4-to-ecr-returns-untagged-images
+   # https://github.com/docker/metadata-action
+   # https://dev.to/aws-builders/aws-sso-github-setup-35ld
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+
+      ###########
+      ###########
+      ###########
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ASSUME_ROLE_NAME }}
+          role-session-name: gha-challenge-devops-build
+          aws-region: ${{ env.AWS_REGION }}
+
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_MGMT_ECR_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_MGMT_ECR_KEY }}
+      #     aws-region: ${{ env.AWS_REGION }}
+      ###########
+      ###########
+      ###########
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+
+      ###########
+      ###########
+      ###########
+
+      # - name: Build, tag, and push docker image to Amazon ECR
+      #   env:
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     ECR_REPOSITORY: ${{ env.APP_NAME }}
+      #     IMAGE_TAG: ${{ env.IMAGE_TAG }}
+      #   run: |
+      #     cd ./${{ env.APP_NAME }}
+      #     docker buildx build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # - name: Image digest
+      #   run: echo ${{ steps.build-image.outputs.digest }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
+          tags: |
+            latest
+            ${{ github.sha }}
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY:  ${{ env.APP_NAME }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./challenge-devops
+          tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64,linux/arm64
+          load: true
+          push: true
+          provenance: false
+
+      ###########
+      ###########
+      ###########
