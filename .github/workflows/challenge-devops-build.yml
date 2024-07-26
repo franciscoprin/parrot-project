@@ -15,7 +15,7 @@ jobs:
 
     env:
       APP_NAME: challenge-devops
-      AWS_ACCOUNT_ID: 123456789012
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       AWS_ASSUME_ROLE_NAME: github-actions-ecr-push-role
       AWS_REGION: aws-region-1
       IMAGE_TAG: ${{ github.sha }}
