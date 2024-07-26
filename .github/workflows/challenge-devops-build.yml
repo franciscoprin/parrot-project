@@ -75,7 +75,7 @@ jobs:
             ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
           tags: |
             latest
-            ${{ env.IMAGE_TAG }}
+            ${{ steps.vars.outputs.IMAGE_TAG }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY:  ${{ env.APP_NAME }}
