@@ -17,8 +17,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-# arn:aws:iam::270340338153:role/ue1-experiments-github-actions-ecr-push-role
-
     env:
       APP_NAME: challenge-devops
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
@@ -30,26 +28,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-
-      ###########
-      ###########
-      ###########
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
         with:
-          role-to-assume: arn:aws:iam::270340338153:role/ue1-experiments-github-actions-ecr-push-role # arn:aws:iam::{{ env.AWS_ACCOUNT_ID }}:role/{{ env.AWS_ASSUME_ROLE_NAME }}
+          role-to-assume: arn:aws:iam::{{ env.AWS_ACCOUNT_ID }}:role/{{ env.AWS_ASSUME_ROLE_NAME }}
           role-session-name: gha-challenge-devops-build
           aws-region: ${{ env.AWS_REGION }}
-
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_MGMT_ECR_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_MGMT_ECR_KEY }}
-      #     aws-region: ${{ env.AWS_REGION }}
-      ###########
-      ###########
-      ###########
 
       - name: Login to Amazon ECR
         id: login-ecr
