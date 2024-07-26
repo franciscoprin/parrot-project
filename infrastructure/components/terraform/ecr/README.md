@@ -1,6 +1,6 @@
 ### ECR Component
 
-This module creates Amazon ECR repositories and an IAM role that will be assumed by GitHub Actions for pushing images to the repositories.
+This module creates Amazon ECR repositories and an IAM role that will be assumed by GitHub Actions for pushing images to the repositories. This also read from or depends on the [github-oidc-provider component output](../github-oidc-provider/README.md).
 
 ### References
 
