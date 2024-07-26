@@ -9,6 +9,10 @@ on:
       # For testing purposes push in any branch
       - feature/create-pipeline-challenge-devops-build
 
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
 jobs:
   build:
     runs-on: ubuntu-latest
