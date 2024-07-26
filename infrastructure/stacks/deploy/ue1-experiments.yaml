@@ -13,4 +13,3 @@ components:
       vars:
         repository_names:
           - challenge-devops
-        
