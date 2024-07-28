@@ -6,8 +6,40 @@ graph TD
     GA[GitHub Actions Workflow]
   end
 
+  subgraph Internet
+  end
+
   subgraph AWS
     subgraph Region - us-east-1
+      subgraph VPC[VPC - 10.111.0.0/16]
+        IGW[Internet Gateway]
+        RT_PUB1[Route Table]
+        RT_PVT1[Route Table]
+        RT_PVT2[Route Table]
+        RT_PVT3[Route Table]
+
+        subgraph AZ - us-east-1a
+          subgraph PUB1[Public Subnet - 10.111.96.0/19]
+            NAT1[NAT Gateway]
+          end
+          PVT1[Private Subnet - 10.111.0.0/19]
+        end
+
+        subgraph AZ - us-east-1b
+          subgraph PUB2[Public Subnet - 10.111.128.0/19]
+            NAT2[NAT Gateway]
+          end
+          PVT2[Private Subnet - 10.111.32.0/19]
+        end
+
+        subgraph AZ - us-east-1c
+          subgraph PUB3[Public Subnet - 10.111.160.0/19]
+            NAT3[NAT Gateway]
+          end
+          PVT3[Private Subnet - 10.111.64.0/19]
+        end
+      end
+
       ECR[ECR Repository]
     end
     OIDC[OIDC Provider]
@@ -18,6 +50,21 @@ graph TD
   OIDC -->|grants access| IAM
   IAM -->|has permissions| ECR
   GA -->|pushes images to| ECR
+
+  PUB1 <--> RT_PUB1
+  PUB2 <--> RT_PUB1
+  PUB3 <--> RT_PUB1
+  RT_PUB1 <--> IGW
+
+  PVT1 --> RT_PVT1 --> NAT1
+  PVT2 --> RT_PVT2 --> NAT2
+  PVT3 --> RT_PVT3 --> NAT3
+
+  NAT1 --> IGW
+  NAT2 --> IGW
+  NAT3 --> IGW
+
+  IGW <--> Internet
 ```
 
 ### Tech Stack:

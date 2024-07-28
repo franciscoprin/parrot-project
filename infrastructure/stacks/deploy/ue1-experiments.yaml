@@ -6,6 +6,7 @@ vars:
 
 import:
   - catalog/ecr
+  - catalog/vpc
 
 components:
   terraform:
@@ -13,3 +14,11 @@ components:
       vars:
         repository_names:
           - challenge-devops
+
+    vpc:
+      metadata:
+        component: vpc
+        inherits:
+          - vpc/defaults
+      vars:
+        ipv4_primary_cidr_block: "10.111.0.0/16"
