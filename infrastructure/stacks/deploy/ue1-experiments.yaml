@@ -6,6 +6,7 @@ vars:
 
 import:
   - catalog/ecr
+  - catalog/eks/alb-controller
   - catalog/eks/cluster
   - catalog/vpc
 
