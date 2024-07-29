@@ -1,0 +1,62 @@
+components:
+  terraform:
+    eks/cluster:
+      metadata:
+        component: eks/cluster
+      vars:
+        cluster_kubernetes_version: "1.29"
+
+        # You can set all the add-on versions to `null` to use the latest version,
+        # but that introduces drift as new versions are released. As usual, we recommend
+        # pinning the versions to a specific version and upgrading when convenient.
+
+        # Determine the latest version of the EKS add-ons for the specified Kubernetes version
+        #  EKS_K8S_VERSION=1.29 # replace with your cluster version
+        #  ADD_ON=vpc-cni # replace with the add-on name
+        #  echo "${ADD_ON}:" && aws eks describe-addon-versions --kubernetes-version $EKS_K8S_VERSION --addon-name $ADD_ON \
+        #  --query 'addons[].addonVersions[].{Version: addonVersion, Defaultversion: compatibilities[0].defaultVersion}' --output table
+
+        # To see versions for all the add-ons, wrap the above command in a for loop:
+        #   for ADD_ON in vpc-cni kube-proxy coredns aws-ebs-csi-driver aws-efs-csi-driver; do
+        #     echo "${ADD_ON}:" && aws eks describe-addon-versions --kubernetes-version $EKS_K8S_VERSION --addon-name $ADD_ON \
+        #     --query 'addons[].addonVersions[].{Version: addonVersion, Defaultversion: compatibilities[0].defaultVersion}' --output table
+        #   done
+
+        # To see the custom configuration schema for an add-on, run the following command:
+        #   aws eks describe-addon-configuration --addon-name aws-ebs-csi-driver \
+        #   --addon-version v1.20.0-eksbuild.1 | jq '.configurationSchema | fromjson'
+        # See the `coredns` configuration below for an example of how to set a custom configuration.
+
+        # https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html
+        # https://docs.aws.amazon.com/eks/latest/userguide/managing-add-ons.html#creating-an-add-on
+        addons:
+          # https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html
+          # https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html
+          # https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-role
+          # https://aws.github.io/aws-eks-best-practices/networking/vpc-cni/#deploy-vpc-cni-managed-add-on
+          vpc-cni:
+            addon_version: "v1.16.0-eksbuild.1" # set `addon_version` to `null` to use the latest version
+          # https://docs.aws.amazon.com/eks/latest/userguide/managing-kube-proxy.html
+          kube-proxy:
+            addon_version: "v1.29.0-eksbuild.1" # set `addon_version` to `null` to use the latest version
+          # https://docs.aws.amazon.com/eks/latest/userguide/managing-coredns.html
+          coredns:
+            addon_version: "v1.11.1-eksbuild.4" # set `addon_version` to `null` to use the latest version
+            ## override default replica count of 2. In very large clusters, you may want to increase this.
+            configuration_values: '{"replicaCount": 3}'
+
+          # https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
+          # https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons
+          # https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html#csi-iam-role
+          # https://github.com/kubernetes-sigs/aws-ebs-csi-driver
+          aws-ebs-csi-driver:
+            addon_version: "v1.27.0-eksbuild.1" # set `addon_version` to `null` to use the latest version
+            # If you are not using [volume snapshots](https://kubernetes.io/blog/2020/12/10/kubernetes-1.20-volume-snapshot-moves-to-ga/#how-to-use-volume-snapshots)
+            # (and you probably are not), disable the EBS Snapshotter
+            # See https://github.com/aws/containers-roadmap/issues/1919
+            configuration_values: '{"sidecars":{"snapshotter":{"forceEnable":false}}}'
+
+          aws-efs-csi-driver:
+            addon_version: "v1.7.7-eksbuild.1" # set `addon_version` to `null` to use the latest version
+            # Set a short timeout in case of conflict with an existing efs-controller deployment
+            create_timeout: "7m"

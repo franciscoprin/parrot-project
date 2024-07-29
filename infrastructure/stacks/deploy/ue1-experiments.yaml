@@ -6,6 +6,7 @@ vars:
 
 import:
   - catalog/ecr
+  - catalog/eks/cluster
   - catalog/vpc
 
 components:
@@ -14,6 +15,165 @@ components:
       vars:
         repository_names:
           - challenge-devops
+
+    eks/cluster:
+      vars:
+        enabled: true
+        name: eks
+        vpc_component_name: "vpc"
+
+        # # TODO: This field is not being used
+        # eks_component_name: "eks/cluster"
+
+        # Your choice of availability zones or availability zone ids
+        # availability_zones: ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+
+        aws_ssm_agent_enabled: true
+
+        # # TODO: Most likely this is not needed
+        # allow_ingress_from_vpc_accounts:
+        #   - tenant: core
+        #     stage: auto
+        #   - tenant: core
+        #     stage: corp
+        #   - tenant: core
+        #     stage: network
+        allowed_cidr_blocks: []
+        allowed_security_groups: []
+
+        # # TODO: Don't adding logs to prevent increase of cost in this project.
+        # enabled_cluster_log_types:
+        #   # Caution: enabling `api` log events may lead to a substantial increase in Cloudwatch Logs expenses.
+        #   - api
+        #   - audit
+        #   - authenticator
+        #   - controllerManager
+        #   - scheduler
+
+        oidc_provider_enabled: true
+
+        # # TODO: maybe set this up
+        # map_additional_iam_roles:
+        #   - rolearn: arn:aws:iam::270340338153:role/AWSReservedSSO_AdministratorAccess_af5196e98ef22654
+        #     groups: 
+        #       - system:masters
+
+
+        
+
+        # Allows GitHub OIDC role
+        # TODO: It is not implemented
+        github_actions_iam_role_enabled: true
+        github_actions_iam_role_attributes: ["eks"]
+        github_actions_allowed_repos:
+          - franciscoprin/parrot-project
+
+        # We recommend, at a minimum, deploying 1 managed node group,
+        # with the same number of instances as availability zones (typically 3).
+        managed_node_groups_enabled: true
+        node_groups: # for most attributes, setting null here means use setting from node_group_defaults
+          main:
+            # availability_zones = null will create one autoscaling group
+            # in every private subnet in the VPC
+            availability_zones: null
+
+            # Tune the desired and minimum group size according to your baseload requirements.
+            # We recommend no autoscaling for the main node group, so it will
+            # stay at the specified desired group size, with additional
+            # capacity provided by Karpenter. Nevertheless, we recommend
+            # deploying enough capacity in the node group to handle your
+            # baseload requirements, and in production, we recommend you
+            # have a large enough node group to handle 3/2 (1.5) times your
+            # baseload requirements, to handle the loss of a single AZ.
+            desired_group_size: 3 # number of instances to start with, should be >= number of AZs
+            min_group_size: 3 # must be  >= number of AZs
+            max_group_size: 3
+
+            # Can only set one of ami_release_version or kubernetes_version
+            # Leave both null to use latest AMI for Cluster Kubernetes version
+            kubernetes_version: null # use cluster Kubernetes version
+            ami_release_version: null # use latest AMI for Kubernetes version
+
+            attributes: []
+            create_before_destroy: true
+            cluster_autoscaler_enabled: true
+            instance_types:
+              # Tune the instance type according to your baseload requirements.
+              - t3.medium
+            ami_type: AL2_x86_64 # use "AL2_x86_64" for standard instances, "AL2_x86_64_GPU" for GPU instances
+
+            
+            node_userdata:
+              # WARNING: node_userdata is alpha status and will likely change in the future.
+              #          Also, it is only supported for AL2 and some Windows AMIs, not BottleRocket or AL2023.
+              # Kubernetes docs: https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/
+              kubelet_extra_args: >-
+                --kube-reserved cpu=100m,memory=0.6Gi,ephemeral-storage=1Gi
+                --system-reserved cpu=100m,memory=0.2Gi,ephemeral-storage=1Gi
+                --eviction-hard memory.available<200Mi,nodefs.available<10%,imagefs.available<15%
+
+
+            block_device_map:
+              # EBS volume for local ephemeral storage
+              # IGNORED if legacy `disk_encryption_enabled` or `disk_size` are set!
+              # Use "/dev/xvda" for most of the instances (without local NVMe)
+              # using most of the Linuxes, "/dev/xvdb" for BottleRocket
+              "/dev/xvda":
+                ebs:
+                  volume_size: 20 # number of GB
+                  volume_type: gp3
+
+            kubernetes_labels: {}
+            kubernetes_taints: []
+            resources_to_tag:
+              - instance
+              - volume
+            tags: null
+
+        # The abbreviation method used for Availability Zones in your project.
+        # Used for naming resources in managed node groups.
+        # Either "short" or "fixed".
+        availability_zone_abbreviation_type: fixed
+
+        cluster_private_subnets_only: true
+        cluster_encryption_config_enabled: true
+        cluster_endpoint_private_access: true
+        cluster_endpoint_public_access: true
+        cluster_log_retention_period: 90
+
+        # # List of `aws-team-roles` (in the account where the EKS cluster is deployed) to map to Kubernetes RBAC groups
+        # # You cannot set `system:*` groups here, except for `system:masters`.
+        # # The `idp:*` roles referenced here are created by the `eks/idp-roles` component.
+        # # While set here, the `idp:*` roles will have no effect until after
+        # # the `eks/idp-roles` component is applied, which must be after the
+        # # `eks/cluster` component is deployed.
+        # aws_team_roles_rbac:
+        #   - aws_team_role: admin
+        #     groups:
+        #       - system:masters
+        #   - aws_team_role: poweruser
+        #     groups:
+        #       - idp:poweruser
+        #   - aws_team_role: observer
+        #     groups:
+        #       - idp:observer
+        #   - aws_team_role: planner
+        #     groups:
+        #       - idp:observer
+        #   - aws_team_role: terraform
+        #     groups:
+        #       - system:masters
+
+        # Permission sets from AWS SSO allowing cluster access
+        # See `aws-sso` component.
+        aws_sso_permission_sets_rbac:
+          - aws_sso_permission_set: AdministratorAccess
+            groups:
+              - system:masters
+
+        # Set to false if you are not using Karpenter
+        karpenter_iam_role_enabled: true
 
     vpc:
       metadata:
