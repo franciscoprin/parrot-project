@@ -79,3 +79,15 @@ module "role_github_action_ecr_push" {
     data.aws_iam_policy_document.ecr_push_access.json,
   ]
 }
+
+# Grant GitHub Actions IAM role access to push Docker images to ECR.
+resource "aws_iam_policy" "ecr_push_access" {
+  name        = module.this.id
+  description = "Allow ECR PushAccess"
+  policy      = data.aws_iam_policy_document.ecr_push_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "example_role_policy_attachment" {
+  role       = one(module.github_actions_iam_role[*].outputs.name)
+  policy_arn = aws_iam_policy.ecr_push_access.arn
+}
