@@ -1,0 +1,44 @@
+components:
+  terraform:
+    eks/alb-controller:
+      vars:
+        chart: aws-load-balancer-controller
+        chart_repository: https://aws.github.io/eks-charts
+        # IMPORTANT: When updating the chart version, check to see if the IAM policy for the service account.
+        # needs to be updated, and if it does, update the policy in the `distributed-iam-policy.tf` file.
+        chart_version: "1.6.0"
+        create_namespace: true
+        kubernetes_namespace: alb-controller
+        # this feature causes inconsistent final plans
+        # see https://github.com/hashicorp/terraform-provider-helm/issues/711#issuecomment-836192991
+        helm_manifest_experiment_enabled: false
+
+        kube_data_auth_enabled: false
+        kube_exec_auth_enabled: true
+        kubeconfig_file_enabled: false
+        kube_exec_auth_aws_profile: experiments-admin
+        kube_exec_auth_aws_profile_enabled: true
+
+        default_ingress_class_name: default
+        default_ingress_group: common
+        default_ingress_ip_address_type: ipv4
+        default_ingress_scheme: internet-facing
+        # You can use `chart_values` to set any other chart options. Treat `chart_values` as the root of the doc.
+        #
+        # # For example
+        # ---
+        # chart_values:
+        #   enableShield: false
+        chart_values:
+          image:
+            repository: amazon/aws-alb-ingress-controller
+            tag: v2.4.5
+            pullPolicy: IfNotPresent
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"

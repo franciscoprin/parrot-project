@@ -1,0 +1,18 @@
+# catalog/vpc/defaults or catalog/vpc
+components:
+  terraform:
+    vpc/defaults:
+      metadata:
+        type: abstract
+        component: vpc
+      vars:
+        enabled: true
+        name: vpc
+        availability_zones:
+          - "a"
+          - "b"
+          - "c"
+        nat_gateway_enabled: true
+        max_subnet_count: 3
+        subnet_type_tag_key: "parrotsoftware.io/subnet/type"
+        assign_generated_ipv6_cidr_block: true

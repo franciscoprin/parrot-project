@@ -6,18 +6,97 @@ graph TD
     GA[GitHub Actions Workflow]
   end
 
+  subgraph Internet
+  end
+
   subgraph AWS
     subgraph Region - us-east-1
+      subgraph VPC[VPC - 10.111.0.0/16]
+        subgraph EKS[EKS Cluster]
+        end
+
+        subgraph AZ - us-east-1a
+          subgraph PUB1[Public Subnet - 10.111.96.0/19]
+            NAT1[NAT Gateway]
+          end
+          subgraph PVT1[Private Subnet - 10.111.0.0/19]
+            subgraph EKS_NODE_GROUP_A[EKS Node Group]
+              subgraph EC2_NODE_GROUP_A[EC2 - t3.medioun]
+                EBS1_ATTACHED_VOLUME[dev/xvda]
+              end
+            end
+          end
+          EBS1[EBS - gp3]
+        end
+
+        subgraph AZ - us-east-1b
+          subgraph PUB2[Public Subnet - 10.111.128.0/19]
+            NAT2[NAT Gateway]
+          end
+          subgraph PVT2[Private Subnet - 10.111.32.0/19]
+            subgraph EKS_NODE_GROUP_B[EKS Node Group]
+              subgraph EC2_NODE_GROUP_B[EC2 - t3.medioun]
+                EBS2_ATTACHED_VOLUME[dev/xvda]
+              end
+            end
+          end
+          EBS2[EBS - gp3]
+        end
+
+        subgraph AZ - us-east-1c
+          subgraph PUB3[Public Subnet - 10.111.160.0/19]
+            NAT3[NAT Gateway]
+          end
+          subgraph PVT3[Private Subnet - 10.111.64.0/19]
+            subgraph EKS_NODE_GROUP_C[EKS Node Group]
+              subgraph EC2_NODE_GROUP_C[EC2 - t3.medioun]
+                EBS3_ATTACHED_VOLUME[dev/xvda]
+              end
+            end
+          end
+          EBS3[EBS - gp3]
+        end
+
+        IGW[Internet Gateway]
+        RT_PUB1[Route Table]
+        RT_PVT1[Route Table]
+        RT_PVT2[Route Table]
+        RT_PVT3[Route Table]
+
+      end
+
       ECR[ECR Repository]
     end
     OIDC[OIDC Provider]
     IAM[IAM Role]
   end
 
+  EBS1_ATTACHED_VOLUME <-->|attached volume| EBS1
+  EBS2_ATTACHED_VOLUME <-->|attached volume| EBS2
+  EBS3_ATTACHED_VOLUME <-->|attached volume| EBS3
   GA -->|assumes role via| OIDC
   OIDC -->|grants access| IAM
   IAM -->|has permissions| ECR
   GA -->|pushes images to| ECR
+
+  PUB1 <--> RT_PUB1
+  PUB2 <--> RT_PUB1
+  PUB3 <--> RT_PUB1
+  RT_PUB1 <--> IGW
+
+  PVT1 --> RT_PVT1 --> NAT1
+  PVT2 --> RT_PVT2 --> NAT2
+  PVT3 --> RT_PVT3 --> NAT3
+
+  NAT1 --> IGW
+  NAT2 --> IGW
+  NAT3 --> IGW
+
+  IGW <--> Internet
+
+  EKS -->|manages| EKS_NODE_GROUP_A
+  EKS -->|manages| EKS_NODE_GROUP_B
+  EKS -->|manages| EKS_NODE_GROUP_C
 ```
 
 ### Tech Stack:
@@ -53,7 +132,7 @@ graph TD
     * Set up Cloudposse Atmos inside the `infrastructure` folder. [X]
       * [Atmos tutorial]
 
-* **Setting OIDC for GitHub**:
+* **Setting OIDC for GitHub**: [X]
   * Configure the 
   * Create the resources inside of `github-oidc-provider` [ ]
   * Use the file inside of [github-assume-role-policy.mixin.tf](https://github.com/cloudposse/terraform-aws-components/blob/d12201d0affeffd14e5d47276934cfd4b91c2d15/modules/account-map/modules/team-assume-role-policy/github-assume-role-policy.mixin.tf) to import and create the oidc configurations and grant the ECR role with the necesary permissions to push images to ECR.
@@ -62,15 +141,15 @@ graph TD
 
 * **Create the infrastructure for the application.** [ ]
   * (Some of the Terraform code and diagrams were created in one of your repositories) [ ]
-  * VPC Atmos Component [ ]
-    * VPC Atmos Component [ ]
-        * Create subnets: [ ]
-            * Private Subnet: [ ]
+  * VPC Atmos Component [X]
+    * VPC Atmos Component [X]
+        * Create subnets: [X]
+            * Private Subnet: [X]
                 * For database [ ]
                 * For EKS nodes where the application will live [ ]
-            * Public Subnet: [ ]
-                * For the ALB that will expose the application to the internet [ ]
-            * Create an internet gateway and attach it to the public subnet using route tables. [ ]
+            * Public Subnet: [X]
+                * For the ALB that will expose the application to the internet [X]
+            * Create an internet gateway and attach it to the public subnet using route tables. [X]
   * EKS Atmos Component [ ]
     * EKS Cluster [ ]
     * Node Groups [ ]
@@ -82,7 +161,7 @@ graph TD
     * To grant GitHub Actions permission to push images to ECR
     * Branch: feature/setup-github-oidc-provider
     * PR: https://github.com/franciscoprin/parrot-project/pull/4
-  * ECR Atmos component [ ]
+  * ECR Atmos component [X]
     * **TODO:** for some reason old images are not beind deleted (REF: var.max_image_count)
     * To host the images for the application.
     * Branch: feature/setup-ecr
