@@ -6,6 +6,7 @@ vars:
 
 import:
   - catalog/github-oidc-provider
+  - catalog/github-actions-iam-role
 
 components:
   terraform:
