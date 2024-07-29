@@ -1,0 +1,10 @@
+components:
+  terraform:
+    github-actions-iam-role:
+      metadata:
+        component: github-actions-iam-role
+      vars:
+        name: github-actions-iam-role
+        trusted_github_org: franciscoprin
+        trusted_github_repo_names:
+         - parrot-project
