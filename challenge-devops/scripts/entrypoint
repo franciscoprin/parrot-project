@@ -13,12 +13,12 @@ if [[ "${CHAMBER_ENABLE:-true}" == "true" ]]; then
     log "INFO" "Chamber is enabled"
 
     # Define the services
-    SERVICES="$STAGE $APP_NAME $STAGE-$APP_NAME"
+    SERVICES="$STAGE $APP_NAME $APP_NAME-$STAGE"
     log "INFO" "Processing services: $SERVICES"
 
     # Source environment variables from each service using chamber
     # Docs: https://medium.com/@ruslanfg/using-segment-io-chamber-for-managing-secrets-for-your-hobby-projects-2e08faaee5e2
-    chamber exec  "$SERVICES" -- /bin/bash -c set
+    chamber exec $SERVICES -- /bin/bash -c set
 fi
 
 exec "$@"
