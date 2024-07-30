@@ -5,8 +5,10 @@ name: Build Pipeline
 on:
   push:
     branches:
-      - main
-      # # For testing purposes push in any branch
+      # TODO: only allow to build when pushed to main.
+      # - main
+      # For testing purposes push in any branch
+      - "develop"
       # - "**"
 
 permissions:
