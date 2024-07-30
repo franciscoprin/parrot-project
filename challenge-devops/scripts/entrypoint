@@ -18,7 +18,10 @@ if [[ "${CHAMBER_ENABLE:-true}" == "true" ]]; then
 
     # Source environment variables from each service using chamber
     # Docs: https://medium.com/@ruslanfg/using-segment-io-chamber-for-managing-secrets-for-your-hobby-projects-2e08faaee5e2
-    chamber exec $SERVICES -- /bin/bash -c set
+    source <(chamber exec $SERVICES -- /bin/bash -c 'env | xargs -I {} echo export {}')
 fi
+
+set +o errexit
+set +o nounset
 
 exec "$@"
