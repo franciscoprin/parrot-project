@@ -54,7 +54,7 @@ releases:
           minReadySeconds: 0
           pod:
             labels: {}
-            # args: ["sleep", "infinity"]
+            args: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
             lifecycle: {}
             hostPID: false
             terminationGracePeriodSeconds: 30
