@@ -1,0 +1,47 @@
+# .github/workflows/deploy.yml
+
+name: Deploy Pipeline
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_NAME: challenge-devops
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_ASSUME_ROLE_NAME: gbl-experiments-github-actions-iam-role
+      AWS_REGION: us-east-1
+      EKS_CLUSTER_NAME: ue1-experiments-eks-cluster
+      DOCKER_IMAGE: franciscoprin/parrot-infra:latest
+      DEPLOY_DIR: challenge-devops/deployment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Extra variables
+        id: vars
+        run: |
+          echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ASSUME_ROLE_NAME }}
+          role-session-name: gha-challenge-devops-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Run deployment commands
+        uses: docker://${{ env.DOCKER_IMAGE }}
+        with:
+          entrypoint: /bin/bash
+          args: |
+            -c "
+            aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }} &&
+            cd ${{ env.DEPLOY_DIR }} &&
+            IMAGE_TAG=${{ steps.vars.outputs.IMAGE_TAG }} AWS_REGION=${{ env.AWS_REGION }} AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }} APP_NAME=${{ env.APP_NAME }} helmfile deploy
+            "
