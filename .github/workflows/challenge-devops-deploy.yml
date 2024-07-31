@@ -16,6 +16,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    container: franciscoprin/parrot-infra:latest
 
     env:
       APP_NAME: challenge-devops
@@ -42,7 +43,6 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Run deployment commands
-        uses: docker://franciscoprin/parrot-infra:latest
         with:
           entrypoint: /bin/bash
           args: |
