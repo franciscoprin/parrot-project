@@ -3,11 +3,8 @@
 name: Deploy Pipeline
 
 on:
-  push:
-    branches:
-      - "**"
-  # release:
-  #   types: [created]
+  release:
+    types: [created]
 
 permissions:
   id-token: write # This is required for requesting the JWT
