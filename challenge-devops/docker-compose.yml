@@ -21,7 +21,7 @@ services:
     env_file:
       - scripts/envs/app
     environment:
-      CHAMBER_ENABLE: false 
+      CHAMBER_ENABLE: "false" 
     volumes:
       - .:/code
     ports:
