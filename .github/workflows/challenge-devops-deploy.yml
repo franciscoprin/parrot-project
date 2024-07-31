@@ -46,4 +46,4 @@ jobs:
         run: |
             aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
             cd ${{ env.DEPLOY_DIR }}
-            IMAGE_TAG=${{ steps.vars.outputs.IMAGE_TAG }} AWS_REGION=${{ env.AWS_REGION }} AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }} APP_NAME=${{ env.APP_NAME }} helmfile deploy
+            IMAGE_TAG=${{ steps.vars.outputs.IMAGE_TAG }} AWS_REGION=${{ env.AWS_REGION }} AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }} APP_NAME=${{ env.APP_NAME }} helmfile apply
