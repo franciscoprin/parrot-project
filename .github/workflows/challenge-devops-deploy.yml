@@ -38,7 +38,7 @@ jobs:
       AWS_REGION: us-east-1
       EKS_CLUSTER_NAME: ue1-experiments-eks-cluster
       DEPLOY_DIR: challenge-devops/deployment
-      IMAGE_TAG: ${{ needs.setup.outputs.image_tag }}
+      IMAGE_TAG: 5e83e53
 
     steps:
       - name: Checkout code
