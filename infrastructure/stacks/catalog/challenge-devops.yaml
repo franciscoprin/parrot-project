@@ -5,3 +5,21 @@ components:
         component: parrot-app
       vars:
         name: challenge-devops
+
+        rds_engine: postgres
+        rds_engine_version: "16.3"
+        rds_instance_class: "db.t3.medium"
+        rds_major_engine_version: "16"
+        rds_db_parameter_group: "postgres16"
+        rds_database_name: challengedevops
+        rds_database_port: 5432
+
+        ssm_rds_key_db_name: "POSTGRES_DB"
+        ssm_rds_key_user: "POSTGRES_USER"
+        ssm_rds_key_password: "POSTGRES_PASSWORD"
+        ssm_rds_key_hostname: "POSTGRES_HOST"
+        ssm_rds_key_port: "POSTGRES_PORT"
+
+        rds_allocated_storage: 50
+        rds_max_allocated_storage: 200 
+        rds_storage_type: gp2

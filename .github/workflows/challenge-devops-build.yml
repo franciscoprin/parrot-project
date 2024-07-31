@@ -1,12 +1,12 @@
-# .github/workflows/build.yml
-
 name: Build Pipeline
 
 on:
   push:
     branches:
+
       - main
-      # # For testing purposes push in any branch
+      - "develop"
+      # For testing purposes push in any branch
       # - "**"
 
 permissions:

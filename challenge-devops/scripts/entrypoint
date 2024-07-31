@@ -1,6 +1,27 @@
-#!/bin/sh
+#!/bin/bash
 
 set -o errexit
 set -o nounset
+
+log() {
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "{\"timestamp\": \"$TIMESTAMP\", \"log_level\": \"$1\", \"message\": \"$2\"}"
+}
+
+# Check if CHAMBER_ENABLE is set to "true"
+if [[ "${CHAMBER_ENABLE:-true}" == "true" ]]; then
+    log "INFO" "Chamber is enabled"
+
+    # Define the services
+    SERVICES="$STAGE $APP_NAME $APP_NAME-$STAGE"
+    log "INFO" "Processing services: $SERVICES"
+
+    # Source environment variables from each service using chamber
+    # Docs: https://medium.com/@ruslanfg/using-segment-io-chamber-for-managing-secrets-for-your-hobby-projects-2e08faaee5e2
+    source <(chamber exec $SERVICES -- /bin/bash -c 'env | xargs -I {} echo export {}')
+fi
+
+set +o errexit
+set +o nounset
 
 exec "$@"

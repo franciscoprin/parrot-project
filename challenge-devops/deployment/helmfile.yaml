@@ -1,0 +1,147 @@
+repositories:
+  - name: monochart # cloudposse-incubator
+    url: git+https://github.com/SpotOnInc/helmcharts@monochart?ref=master # "https://charts.cloudposse.com/incubator/"
+
+releases:
+  - name: challenge-devops
+    namespace: challenge-devops
+    # chart: monochart # cloudposse-incubator/monochart
+    chart: monochart/spoton-monochart
+    values:
+      - replicaCount: 3
+        serviceAccount:
+          create: true
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::{{ requiredEnv "AWS_ACCOUNT_ID" }}:role/ue1-experiments-{{ requiredEnv "APP_NAME" }}
+            helm.sh/hook: pre-install
+            helm.sh/hook-weight: "-2"  # Use a negative weight to ensure it runs before other hooks
+            # helm.sh/hook-delete-policy: hook-succeeded
+          name: {{ requiredEnv "APP_NAME" }}
+
+        image:
+          repository: {{ requiredEnv "AWS_ACCOUNT_ID" }}.dkr.ecr.{{ requiredEnv "AWS_REGION" }}.amazonaws.com/{{ requiredEnv "APP_NAME" }}
+          tag: {{ requiredEnv "IMAGE_TAG" }}
+          pullPolicy: IfNotPresent
+
+        # Inline ENV variables
+        env:
+          STAGE: experiments
+          APP_NAME: {{ requiredEnv "APP_NAME" }}
+
+        job:
+          run-migrations:
+            enabled: true
+            annotations:
+              # helm hooks: https://helm.sh/docs/topics/charts_hooks/
+              # to allow the migrations to run before the new pods are lifted
+              helm.sh/hook: pre-install
+              helm.sh/hook-weight: "-1"  # Use a negative weight to ensure it runs before other hooks
+              helm.sh/hook-delete-policy: hook-succeeded
+            restartPolicy: Never
+            pod:
+              args: ['python', 'manage.py', 'migrate']
+
+        deployment:
+          enabled: true
+          ## Pods replace strategy
+          ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+          strategy:
+            type: RollingUpdate
+            rollingUpdate:
+              maxUnavailable: 1
+              maxSurge: 1
+          revisionHistoryLimit: 10
+          minReadySeconds: 0
+          pod:
+            labels: {}
+            # args: ["sleep", "infinity"]
+            lifecycle: {}
+            hostPID: false
+            terminationGracePeriodSeconds: 30
+
+        service:
+          enabled: true
+          type: ClusterIP
+          ports:
+            default:
+              internal: 8000
+              external: 80
+          # labels:
+          #   name: value
+          # annotations:
+          #   name: value
+
+        probes: {}
+        #  livenessProbe:
+        #    httpGet:
+        #      path: /api/v1/counters/health
+        #      port: http
+        #  readinessProbe:
+        #    httpGet:
+        #      path: /api/v1/counters/health
+        #      port: http
+
+        ## Configure resource requests and limits
+        ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+        ##
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+        #  limits:
+        #    cpu: 100m
+        #    memory: 128Mi
+
+        ## Init container resources defaults
+        initContainer:
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 10m
+
+        # Ingress for load balancer
+        ingress:
+          default:
+            enabled: true
+            # className: "defaults"
+            annotations:
+              kubernetes.io/ingress.class: "default" # "alb"
+              alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:{{ requiredEnv "AWS_REGION" }}:{{ requiredEnv "AWS_ACCOUNT_ID" }}:certificate/238b47fb-c1be-4200-8748-c8d4cd005fc6
+              # Ingresses with the same group will use the same Load Balancer rather than create new one
+              alb.ingress.kubernetes.io/group.name: common
+              alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+              alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+              # Target type "IP" is required for service type "ClusterIP"
+              # If we want to change to ingress target type "instance" we have to use service type "NodePort"
+              alb.ingress.kubernetes.io/target-type: ip
+              # Application Load Balancer has to be publicly available to endpoint be reachable externally.
+              alb.ingress.kubernetes.io/scheme: internet-facing
+              # Health check path has to be adjusted according to your application so load balancer can check if it can 
+              # route traffic to your service.
+              alb.ingress.kubernetes.io/healthcheck-path: /api/v1/counters/health
+        #    className: nginx # <-- set ingressClass for this ingress resource
+        #    port: port-name
+        #    labels:
+        #      dns: "route53"
+        #    annotations:
+        #      kubernetes.io/ingress.class: nginx
+        #      kubernetes.io/tls-acme: "true"
+            hosts:
+              {{ requiredEnv "APP_NAME" }}.infocp-mvp.parrot.rest: /
+            # tls:
+            # - secretName: server-tls
+            #   hosts:
+            #   - domain.com
+
+        ## Node selector
+        ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+        nodeSelector: {}
+
+        ## Affinity
+        ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+        affinity: {}
+
+        ## Tolerations for pod assignment
+        ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        ##
+        tolerations: []

@@ -5,6 +5,7 @@ vars:
   aws_profile_name: experiments-admin
 
 import:
+  - catalog/challenge-devops
   - catalog/ecr
   - catalog/eks/alb-controller
   - catalog/eks/cluster
