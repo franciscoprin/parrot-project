@@ -1,14 +1,12 @@
-# .github/workflows/build.yml
-
 name: Build Pipeline
 
 on:
   push:
     branches:
-      # TODO: only allow to build when pushed to main.
-      # - main
-      # For testing purposes push in any branch
+
+      - main
       - "develop"
+      # For testing purposes push in any branch
       # - "**"
 
 permissions:

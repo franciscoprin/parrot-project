@@ -31,8 +31,9 @@ components:
         #   enableShield: false
         chart_values:
           image:
-            repository: amazon/aws-alb-ingress-controller
-            tag: v2.4.5
+            # AWS repository: https://gallery.ecr.aws/eks/aws-load-balancer-controller
+            repository: public.ecr.aws/eks/aws-load-balancer-controller # amazon/aws-alb-ingress-controller
+            tag: v2.8.1 # v2.5.1 # v2.4.5
             pullPolicy: IfNotPresent
 
         resources:
