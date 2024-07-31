@@ -3,25 +3,18 @@
 name: Deploy Pipeline
 
 on:
-  # release:
-  #   types: [created]
-  push:
-    branches:
-      - "**"
+  release:
+    types: [created]
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
 
 jobs:
-  deploy:
+  setup:
     runs-on: ubuntu-latest
-
-    env:
-      APP_NAME: challenge-devops
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      AWS_ASSUME_ROLE_NAME: gbl-experiments-github-actions-iam-role
-      AWS_REGION: us-east-1
-      EKS_CLUSTER_NAME: ue1-experiments-eks-cluster
-      DOCKER_IMAGE: franciscoprin/parrot-infra:latest
-      DEPLOY_DIR: challenge-devops/deployment
-
+    outputs:
+      IMAGE_TAG: ${{ steps.vars.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,7 +22,25 @@ jobs:
       - name: Extra variables
         id: vars
         run: |
-          echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "IMAGE_TAG=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: setup
+    container: franciscoprin/parrot-infra:latest
+
+    env:
+      APP_NAME: challenge-devops
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_ASSUME_ROLE_NAME: gbl-experiments-github-actions-iam-role
+      AWS_REGION: us-east-1
+      EKS_CLUSTER_NAME: ue1-experiments-eks-cluster
+      DEPLOY_DIR: challenge-devops/deployment
+      IMAGE_TAG: ${{needs.setup.outputs.IMAGE_TAG}} # 5e83e53
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -39,12 +50,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Run deployment commands
-        uses: docker://${{ env.DOCKER_IMAGE }}
-        with:
-          entrypoint: /bin/bash
-          args: |
-            -c "
-            aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }} &&
-            cd ${{ env.DEPLOY_DIR }} &&
-            IMAGE_TAG=${{ steps.vars.outputs.IMAGE_TAG }} AWS_REGION=${{ env.AWS_REGION }} AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }} APP_NAME=${{ env.APP_NAME }} helmfile deploy
-            "
+        run: |
+            aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+            cd ${{ env.DEPLOY_DIR }}
+            helmfile apply
