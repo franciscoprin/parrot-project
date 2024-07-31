@@ -16,7 +16,8 @@ permissions:
 jobs:
   setup:
     runs-on: ubuntu-latest
-
+    outputs:
+      IMAGE_TAG: ${{ steps.vars.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,7 +39,7 @@ jobs:
       AWS_REGION: us-east-1
       EKS_CLUSTER_NAME: ue1-experiments-eks-cluster
       DEPLOY_DIR: challenge-devops/deployment
-      IMAGE_TAG: 5e83e53
+      IMAGE_TAG: ${{needs.setup.outputs.IMAGE_TAG}} # 5e83e53
 
     steps:
       - name: Checkout code
