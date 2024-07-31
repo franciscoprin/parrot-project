@@ -3,11 +3,11 @@
 name: Deploy Pipeline
 
 on:
-  release:
-    types: [created]
-  pull_request:
-    branches-ignore:
-      - 'main'
+  # release:
+  #   types: [created]
+  push:
+    branches:
+      - "**"
 
 jobs:
   deploy:
