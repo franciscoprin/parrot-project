@@ -24,7 +24,7 @@ jobs:
       - name: Extra variables
         id: vars
         run: |
-          echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "IMAGE_TAG=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
 
   deploy:
     runs-on: ubuntu-latest
