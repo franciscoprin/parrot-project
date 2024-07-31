@@ -1,8 +1,12 @@
-### Description
+## Description
+
+This repository is a takehome project. It currently have two subfolders for practicity but in reallity, each of these folders should be its own repository.
+
+The infrastructure folder container a monorepo structure which will be responsible to creat the whole architecture (VPC, EKS, etc) for applications.
 
 ```mermaid
 graph TD
-  subgraph GitHub Actions
+  subgraph GitHub
     GA[GitHub Actions Workflow]
   end
 
@@ -99,9 +103,32 @@ graph TD
   EKS -->|manages| EKS_NODE_GROUP_C
 ```
 
-### Tech Stack:
+## Getting Started
+
+The Geodesic container is a pre-built Docker image with essential development tools to help you set up quickly. It includes `kubectl`, `aws-cli`, and more. To install it, just go inside of the infrastructure folder and run `make all` after that you only have to run `parrot` in your terminal.
+
+### Getting authenticate with AWS
+It is suggested to use [leapp](https://www.leapp.cloud/download/desktop-app) for getting authenticated in AWS.
+
+### Setting Up Your EKS Context
+Configure your Kubernetes context to interact with your Amazon EKS cluster, this could be done inside of the geodesic container:
+
+```bash
+aws eks update-kubeconfig --region us-east-1 --name ue1-experiments-eks-cluster --profile experiments-admin
+```
+
+### Port-Forwarding an Application
+
+Forward a port from service in your Kubernetes cluster to your local machine:
+```bash
+kubectl port-forward service/challenge-devops-spoton-monochart 8080:default
+```
+
+Access the application at [http://localhost:8080](http://localhost:8080).
+
+## Tech Stack:
 * **Docker** [ ]
-* **AWS:**
+* **CLOUD(AWS):**
   * IAM  [ ]
     * Identity Provider (oidc) [ ]
   * EKS [ ]
