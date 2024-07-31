@@ -77,3 +77,6 @@ static/
 infra/.envs/production/
 
 /data
+
+# Static files
+staticfiles/
