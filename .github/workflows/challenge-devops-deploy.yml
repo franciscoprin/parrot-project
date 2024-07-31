@@ -23,7 +23,6 @@ jobs:
       AWS_ASSUME_ROLE_NAME: gbl-experiments-github-actions-iam-role
       AWS_REGION: us-east-1
       EKS_CLUSTER_NAME: ue1-experiments-eks-cluster
-      DOCKER_IMAGE: franciscoprin/parrot-infra:latest
       DEPLOY_DIR: challenge-devops/deployment
 
     steps:
@@ -43,7 +42,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Run deployment commands
-        uses: docker://${{ env.DOCKER_IMAGE }}
+        uses: docker://franciscoprin/parrot-infra:latest
         with:
           entrypoint: /bin/bash
           args: |
